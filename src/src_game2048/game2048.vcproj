@@ -403,6 +403,10 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="boost"
+				>
+			</Filter>
 		</Filter>
 		<File
 			RelativePath=".\ReadMe.txt"

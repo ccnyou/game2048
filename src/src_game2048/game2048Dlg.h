@@ -48,9 +48,6 @@ protected:
 	afx_msg void		OnSysCommand(UINT uID, LPARAM lParam);
 	afx_msg void		OnKeyUp(UINT uChar, UINT uRepCnt, UINT uFlags);
 	afx_msg void		OnPaint();
-
-	void _JudgeGameResult();
-
 	afx_msg void		OnDestroy();
 	afx_msg void		OnNcRButtonUp(UINT nHitTest, CPoint point);
 	afx_msg void		OnContextMenuSetting();
@@ -72,6 +69,7 @@ private:
 	void			_InitActionMap();
 	void			_ResizeWindow();
 	void			_SetGameMode(GAME_MODE gameMode);
+	void			_JudgeGameResult();
 
 	void			_DrawGame( Gdiplus::Graphics* pGraphics );
 	void			_DrawGameBackground( Gdiplus::Graphics* pGraphics );
