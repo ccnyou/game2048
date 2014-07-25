@@ -196,7 +196,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\ConsoleWnd.cpp"
+				RelativePath=".\consolewnd.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\game2048.cpp"
 				>
 			</File>
 			<File
@@ -212,7 +216,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\GameSettingDlg.cpp"
+				RelativePath=".\gamesettingdlg.cpp"
 				>
 			</File>
 			<File
@@ -242,11 +246,15 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\ConsoleWnd.h"
+				RelativePath=".\consolewnd.h"
 				>
 			</File>
 			<File
 				RelativePath=".\debugconfig.h"
+				>
+			</File>
+			<File
+				RelativePath=".\game2048.h"
 				>
 			</File>
 			<File
@@ -262,7 +270,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\GameSettingDlg.h"
+				RelativePath=".\gamesettingdlg.h"
 				>
 			</File>
 			<File
