@@ -34,7 +34,7 @@ private:
     BOOL	_UninitGdiplus();
 
 private:
-    ULONG_PTR m_gdiplusToken;
+    ULONG_PTR m_ulGdiplusToken;
 };
 
 extern CGame2048App theApp;

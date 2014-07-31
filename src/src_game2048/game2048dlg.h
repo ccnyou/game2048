@@ -10,18 +10,6 @@ class CConsoleWnd;
 
 enum GAME_MODE;
 
-const int UM_GAME_WIN					= WM_USER + 1;
-const int UM_GAME_FAIL					= UM_GAME_WIN + 1;
-const int DEFAULT_GAME_AREA_WIDTH		= 334;
-const int DEFAULT_GAME_AREA_HEIGHT		= 334;
-const int DEFAULT_WIN_PAD				= 1; 
-const int DEFAULT_WND_WIDTH				= DEFAULT_GAME_AREA_WIDTH + 2 * DEFAULT_WIN_PAD;
-const int DEFAULT_TEXT_AREA_HEIGHT		= 66;
-const int DEFAULT_WND_HEIGHT			= DEFAULT_GAME_AREA_HEIGHT + DEFAULT_TEXT_AREA_HEIGHT;
-const int MAX_GAME_PNG_NUMBER			= 2048;
-const int DEFAULT_CELL_SPACING			= 10;
-const int DEFAULT_CELL_WIDTH			= 71;
-const int DEFAULT_CELL_HEIGHT			= 71;
 
 // Cgame2048Dlg ¶Ô»°¿ò
 class CGame2048Dlg : public CDialog
@@ -58,6 +46,7 @@ protected:
     afx_msg LRESULT		OnNcHitTest(CPoint point);
     afx_msg LRESULT		OnGameWin(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT		OnGameFail(WPARAM wParam, LPARAM lParam);
+
     DECLARE_MESSAGE_MAP()
 
 private:
@@ -82,7 +71,7 @@ private:
 
 private:
     HICON					m_hIcon;
-    CGame2048Core*				m_pGame;
+    CGame2048Core*			m_pGame;
     ImagePtr				m_bgImage;
     std::vector<ImagePtr>	m_imagesCache;
     CConsoleWnd*			m_pConsole;

@@ -23,6 +23,7 @@ CGame2048App::CGame2048App()
 {
     // TODO: 在此处添加构造代码，
     // 将所有重要的初始化放置在 InitInstance 中
+    m_ulGdiplusToken = 0;
 }
 
 
@@ -58,24 +59,23 @@ BOOL CGame2048App::InitInstance()
     // 例如修改为公司或组织名
     SetRegistryKey(_T("应用程序向导生成的本地应用程序"));
 
-    _InitGdiplus();
+    BOOL bRet = FALSE;
 
-    CGame2048Dlg dlg;
-    m_pMainWnd = &dlg;
-    INT_PTR nResponse = dlg.DoModal();
-    if (nResponse == IDOK)
+    bRet = _InitGdiplus();
+    if (!bRet)
     {
-        // TODO: 在此处放置处理何时用“确定”来关闭
-        //  对话框的代码
-    }
-    else if (nResponse == IDCANCEL)
-    {
-        // TODO: 在此放置处理何时用“取消”来关闭
-        //  对话框的代码
+        AfxMessageBox(_T("初始化 Gdiplus 失败"));
+        goto Exit0;
     }
 
-    // 由于对话框已关闭，所以将返回 FALSE 以便退出应用程序，
-    //  而不是启动应用程序的消息泵。
+    {
+        CGame2048Dlg dlg;
+        m_pMainWnd = &dlg;
+        dlg.DoModal();
+    }
+
+Exit0:
+
     return FALSE;
 }
 
@@ -87,17 +87,27 @@ int CGame2048App::ExitInstance()
 
 BOOL CGame2048App::_InitGdiplus()
 {
-    Gdiplus::GdiplusStartupInput input;
+    BOOL bRet = FALSE;
+    Gdiplus::GdiplusStartupInput input = 0;
+    Gdiplus::Status status = Gdiplus::Ok;
+    ULONG_PTR ulToken = 0;
 
-    ULONG_PTR token;
-    Gdiplus::GdiplusStartup(&token, &input, NULL);
-    m_gdiplusToken = token;
+    status = Gdiplus::GdiplusStartup(&ulToken, &input, NULL);
+    if (status != Gdiplus::Ok)
+    {
+        goto Exit0;
+    }
 
-    return TRUE;
+    m_ulGdiplusToken = ulToken;
+    bRet = TRUE;
+
+Exit0:
+
+    return bRet;
 }
 
 BOOL CGame2048App::_UninitGdiplus()
 {
-    Gdiplus::GdiplusShutdown(m_gdiplusToken);
+    Gdiplus::GdiplusShutdown(m_ulGdiplusToken);
     return TRUE;
 }

@@ -14,6 +14,22 @@
 #define new DEBUG_NEW
 #endif
 
+enum UM
+{
+    UM_GAME_WIN = WM_USER + 1,
+    UM_GAME_FAIL
+};
+
+const int DEFAULT_GAME_AREA_WIDTH		= 334;
+const int DEFAULT_GAME_AREA_HEIGHT		= 334;
+const int DEFAULT_WIN_PAD				= 1; 
+const int DEFAULT_WND_WIDTH				= DEFAULT_GAME_AREA_WIDTH + 2 * DEFAULT_WIN_PAD;
+const int DEFAULT_TEXT_AREA_HEIGHT		= 66;
+const int DEFAULT_WND_HEIGHT			= DEFAULT_GAME_AREA_HEIGHT + DEFAULT_TEXT_AREA_HEIGHT;
+const int MAX_GAME_PNG_NUMBER			= 2048;
+const int DEFAULT_CELL_SPACING			= 10;
+const int DEFAULT_CELL_WIDTH			= 71;
+const int DEFAULT_CELL_HEIGHT			= 71;
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
@@ -65,6 +81,7 @@ void CGame2048Dlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialog::DoDataExchange(pDX);
 }
+
 
 BEGIN_MESSAGE_MAP(CGame2048Dlg, CDialog)
     ON_WM_SYSCOMMAND()
@@ -130,20 +147,23 @@ void CGame2048Dlg::_InitGame(GAME_MODE gameMode)
     // 防止重复初始化
     if (m_pGame != NULL)
     {
-        return;
+        goto Exit0;
     }
 
     m_pGame = new CGame2048Core;
     if (m_pGame == NULL)
     {
         _FC_LOG("new game failed!");
-        return;
+        goto Exit0;
     }
 
     if (m_pGame->Init(gameMode))
     {
         m_pGame->Start();
     }
+
+Exit0:
+    return;
 }
 
 void CGame2048Dlg::_UninitGame()
@@ -160,18 +180,22 @@ void CGame2048Dlg::_UninitGame()
 
 void CGame2048Dlg::_InitWindow()
 {
-    SetWindowLong(m_hWnd, GWL_STYLE, WS_OVERLAPPED | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU);
-    SetWindowLong(m_hWnd, GWL_EXSTYLE, WS_EX_LTRREADING);
+    ::SetWindowLong(m_hWnd, GWL_STYLE, WS_OVERLAPPED | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU);
+    ::SetWindowLong(m_hWnd, GWL_EXSTYLE, WS_EX_LTRREADING);
     _ResizeWindow();
 }
 
 void CGame2048Dlg::_ResizeWindow()
 {
     CRect gameRect;
+
+    int nWndWidth = 0;
+    int nWndHeight = 0;
+
     _GetGameRect(&gameRect);
 
-    int nWndWidth = gameRect.Width() + 2 * DEFAULT_WIN_PAD;
-    int nWndHeight = gameRect.Height() + DEFAULT_TEXT_AREA_HEIGHT + 2 * DEFAULT_WIN_PAD;
+    nWndWidth = gameRect.Width() + 2 * DEFAULT_WIN_PAD;
+    nWndHeight = gameRect.Height() + DEFAULT_TEXT_AREA_HEIGHT + 2 * DEFAULT_WIN_PAD;
 
     SetWindowPos(NULL, -1, -1, nWndWidth, nWndHeight, SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER);
     CenterWindow();
@@ -256,86 +280,147 @@ void CGame2048Dlg::_PaintClient( CDC* pDC )
 {
     ASSERT(m_pGame != NULL && pDC != NULL);
 
-    CDC& dc = *pDC;
-
     CDC memDC;
-    memDC.CreateCompatibleDC(&dc);
-
     CRect clientRect;
-    CWnd* window = dc.GetWindow();
-    window->GetClientRect(&clientRect);
+    CWnd* pDcWindow = NULL;
+    HBITMAP hMembmp = NULL;
+    HBITMAP hOldbmp = NULL;
+    Gdiplus::Graphics* pGraphics = NULL;
 
-    HBITMAP hMembmp = CreateCompatibleBitmap(dc.GetSafeHdc(), clientRect.Width(), clientRect.Height());
-    HBITMAP hOldbmp = (HBITMAP) SelectObject(memDC.GetSafeHdc(), hMembmp);
+    if (pDC == NULL || m_pGame == NULL)
+    {
+        goto Exit0;
+    }
 
-    Gdiplus::Graphics graphics(memDC.GetSafeHdc());
-    graphics.Clear(Gdiplus::Color(255, 255, 255));
+    memDC.CreateCompatibleDC(pDC);
+
+    pDcWindow = pDC->GetWindow();
+    if (!pDcWindow)
+    {
+        goto Exit0;
+    }
+
+    pDcWindow->GetClientRect(&clientRect);
+
+    hMembmp = CreateCompatibleBitmap(pDC->GetSafeHdc(), clientRect.Width(), clientRect.Height());
+    hOldbmp = (HBITMAP)SelectObject(memDC.GetSafeHdc(), hMembmp);
+
+    pGraphics = Gdiplus::Graphics::FromHDC(memDC.GetSafeHdc());
+    if (!pGraphics)
+    {
+        goto Exit0;
+    }
+
+    pGraphics->Clear(Gdiplus::Color(255, 255, 255));
 
     _FC_LOG("_DrawGame begin");
-    _DrawGame(&graphics);
+    _DrawGame(pGraphics);
     _FC_LOG("_DrawGame end");
 
-    _DrawScore(&graphics);
-    _DrawFrame(&graphics, clientRect);
+    _DrawScore(pGraphics);
+    _DrawFrame(pGraphics, clientRect);
 
-    BitBlt(dc.GetSafeHdc(), 0, 0, clientRect.Width(), clientRect.Height(), memDC.GetSafeHdc(), 0, 0, SRCCOPY);
 
-    SelectObject(memDC.GetSafeHdc(), hOldbmp);
-    DeleteObject(hMembmp);
+    ::BitBlt(pDC->GetSafeHdc(), 0, 0, clientRect.Width(), clientRect.Height(), memDC.GetSafeHdc(), 0, 0, SRCCOPY);
+
+Exit0:
+
+    if (pGraphics)
+    {
+        delete pGraphics;
+    }
+
+    if (hOldbmp)
+    {
+        SelectObject(memDC.GetSafeHdc(), hOldbmp);
+    }
+
+    if (hMembmp)
+    {
+        DeleteObject(hMembmp);
+    }
+
+    return;
 }
 
 void CGame2048Dlg::_DrawScore( Gdiplus::Graphics* pGraphics )
 {
     ASSERT(pGraphics != NULL && m_pGame != NULL);
 
-    Gdiplus::Graphics& graphics = *pGraphics;
-
+    CString strScoreText;
+    Gdiplus::FontFamily fontFamily(_T("宋体"));
+    Gdiplus::Font aFont(&fontFamily, 20, Gdiplus::FontStyleBold, Gdiplus::UnitPoint);
+    Gdiplus::RectF boundRect;
+    Gdiplus::PointF origin;
+    Gdiplus::Color blueColor = static_cast<Gdiplus::ARGB>(Gdiplus::Color::Blue);
+    Gdiplus::SolidBrush textBrush(blueColor);
     CRect wndRect, gameRect;
+    float fScoreAreaX = 0;
+    float fScroeAreaY = 0;
+    int nWndWidth = 0;
+    int nWndHeight = 0;
+    int nGameHeight = 0;
+
+
+    if (pGraphics == NULL)
+    {
+        goto Exit0;
+    }
+
     GetClientRect(&wndRect);
     _GetGameRect(&gameRect);
 
-    int nWndWidth = wndRect.Width();
-    int nWndHeight = wndRect.Height();
-    int nGameHeight = gameRect.Height();
+    nWndWidth = wndRect.Width();
+    nWndHeight = wndRect.Height();
+    nGameHeight = gameRect.Height();
 
-    CString strScoreText;
     strScoreText.Format( _T("当前分数：%d"), m_pGame->GetScore());
-
-    Gdiplus::FontFamily fontFamily(_T("宋体"));
-    Gdiplus::Font aFont(&fontFamily, 20, Gdiplus::FontStyleBold, Gdiplus::UnitPoint);
-
-    Gdiplus::RectF boundRect;
-    graphics.MeasureString(strScoreText, strScoreText.GetLength(), &aFont, Gdiplus::PointF(0.0f, 0.0f), &boundRect);
-    Gdiplus::Color blueColor = static_cast<Gdiplus::ARGB>(Gdiplus::Color::Blue);
-    Gdiplus::SolidBrush textBrush(blueColor);
-
+    pGraphics->MeasureString(strScoreText, strScoreText.GetLength(), &aFont, Gdiplus::PointF(0.0f, 0.0f), &boundRect);
     /// 让分数文字居中的起点偏移 x
-    float fScoreAreaX = (nWndWidth - boundRect.Width) / 2;
+    fScoreAreaX = (nWndWidth - boundRect.Width) / 2;
     /// 让分数文字居中的起点偏移 y = 游戏区域高度 + 相对空白区域的居中偏移
-    float fScroeAreaY = nGameHeight + (nWndHeight - nGameHeight - boundRect.Height) / 2;
-    Gdiplus::PointF origin(fScoreAreaX, fScroeAreaY);
-    graphics.DrawString(strScoreText, strScoreText.GetLength(), &aFont, origin, &textBrush);
+    fScroeAreaY = nGameHeight + (nWndHeight - nGameHeight - boundRect.Height) / 2;
+    origin = Gdiplus::PointF(fScoreAreaX, fScroeAreaY);
+    pGraphics->DrawString(strScoreText, strScoreText.GetLength(), &aFont, origin, &textBrush);
+
+Exit0:
+
+    return;
 }
 
 void CGame2048Dlg::_DrawFrame( Gdiplus::Graphics* pGraphics, const CRect& clientRect )
 {
     ASSERT(pGraphics != NULL);
 
-    Gdiplus::Graphics& graphics = *pGraphics;
     Gdiplus::Pen blackPen(Gdiplus::Color(254, 0, 0, 0), static_cast<Gdiplus::REAL>(DEFAULT_WIN_PAD));
     Gdiplus::Pen grayPen(Gdiplus::Color(254, 200, 200, 200), static_cast<Gdiplus::REAL>(DEFAULT_WIN_PAD));
     CRect deflateRect = clientRect;
 
+    if (pGraphics == NULL)
+    {
+        goto Exit0;
+    }
+
     deflateRect.DeflateRect(0, 0, DEFAULT_WIN_PAD, DEFAULT_WIN_PAD);
-    graphics.DrawRectangle(&blackPen, deflateRect.left, deflateRect.top, deflateRect.Width(), deflateRect.Height());
+    pGraphics->DrawRectangle(&blackPen, deflateRect.left, deflateRect.top, deflateRect.Width(), deflateRect.Height());
     deflateRect.DeflateRect(DEFAULT_WIN_PAD, DEFAULT_WIN_PAD, DEFAULT_WIN_PAD, DEFAULT_WIN_PAD);
-    graphics.DrawRectangle(&grayPen, deflateRect.left, deflateRect.top, deflateRect.Width(), deflateRect.Height());
+    pGraphics->DrawRectangle(&grayPen, deflateRect.left, deflateRect.top, deflateRect.Width(), deflateRect.Height());
+
+Exit0:
+    return;
 }
 
 void CGame2048Dlg::_DrawGameBackground( Gdiplus::Graphics* pGraphics )
 {
     ASSERT(pGraphics != NULL && m_pGame != NULL);
-    Gdiplus::Graphics& graphics = *pGraphics;
+
+    CRect gameRect;
+    Gdiplus::Rect tmpRect;
+
+    if (pGraphics == NULL)
+    {
+        goto Exit0;
+    }
 
     if (!m_bgImage)
     {
@@ -348,12 +433,14 @@ void CGame2048Dlg::_DrawGameBackground( Gdiplus::Graphics* pGraphics )
         return;
     }
 
-    CRect gameRect;
+    
     _GetGameRect(&gameRect);
 
-    Gdiplus::Rect tmpRect(gameRect.left + DEFAULT_WIN_PAD, gameRect.top + DEFAULT_WIN_PAD, gameRect.Width(), gameRect.Height());
-    graphics.DrawImage(m_bgImage.get(), tmpRect, 0, 0, m_bgImage->GetWidth(), m_bgImage->GetHeight(), Gdiplus::UnitPixel);
+    tmpRect = Gdiplus::Rect(gameRect.left + DEFAULT_WIN_PAD, gameRect.top + DEFAULT_WIN_PAD, gameRect.Width(), gameRect.Height());
+    pGraphics->DrawImage(m_bgImage.get(), tmpRect, 0, 0, m_bgImage->GetWidth(), m_bgImage->GetHeight(), Gdiplus::UnitPixel);
 
+Exit0:
+    return;
 }
 
 void CGame2048Dlg::_DrawGameCells( Gdiplus::Graphics* pGraphics )

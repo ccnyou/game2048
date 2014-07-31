@@ -4,8 +4,11 @@
 
 CGame2048Core::CGame2048Core()
 {
-    m_nScore = 0;
-    m_bWin = FALSE;
+    m_gameMode = GAME_MODE_INVALID;
+    m_bWin = FALSE;					// 游戏是否已经赢了
+    m_nScore = 0;				// 记录游戏当前分数
+    m_nRowCount = 0;
+    m_nColumnCount = 0;
 }
 
 CGame2048Core::~CGame2048Core()
@@ -14,19 +17,46 @@ CGame2048Core::~CGame2048Core()
 
 BOOL CGame2048Core::Init( GAME_MODE gameMode /*= GAME_MODE_4X4*/ )
 {
+    BOOL bRet = FALSE;
+
+    if (gameMode == GAME_MODE_INVALID)
+    {
+        goto Exit0;
+    }
+
     m_gameMode = gameMode;
 
-    _InitGameRect();
-    _InitNumbers();
-    _InitMergeFlags();
+    if(!_InitGameRect())
+    {
+        goto Exit0;
+    }
 
-    return TRUE;
+    if(!_InitNumbers())
+    {
+        goto Exit0;
+    }
+
+    if(!_InitMergeFlags())
+    {
+        goto Exit0;
+    }
+
+    bRet = TRUE;
+
+Exit0:
+
+    return bRet;
 }
 
 
 BOOL CGame2048Core::_InitGameRect()
 {
-    ASSERT(m_gameMode == GAME_MODE_4X4 || m_gameMode == GAME_MODE_8x8);
+    BOOL bRet = FALSE;
+
+    if (m_gameMode != GAME_MODE_4X4 && m_gameMode != GAME_MODE_8x8)
+    {
+        goto Exit0;
+    }
 
     if (m_gameMode == GAME_MODE_4X4)
     {
@@ -37,30 +67,55 @@ BOOL CGame2048Core::_InitGameRect()
         m_nRowCount = m_nColumnCount = 8;
     }
 
-    return TRUE;
+    bRet = TRUE;
+
+Exit0:
+
+    return bRet;
 }
 
 BOOL CGame2048Core::_InitNumbers()
 {
+    BOOL bRet = FALSE;
+    IntVector tmpVector;
+
+    if (m_nRowCount == 0 || m_nColumnCount == 0)
+    {
+        goto Exit0;
+    }
+
     m_numbers.clear();
 
-    IntVector tmpVector;
     tmpVector.insert(tmpVector.begin(), m_nRowCount, 0);
     m_numbers.insert(m_numbers.begin(), m_nColumnCount, tmpVector);
 
-    return TRUE;
+    bRet = TRUE;
+
+Exit0:
+
+    return bRet;
 }
 
 
 BOOL CGame2048Core::_InitMergeFlags()
 {
-    m_mergeFlags.clear();
-
+    BOOL bRet = FALSE;
     IntVector tmpVector;
+
+    if (m_nRowCount == 0 || m_nColumnCount == 0)
+    {
+        goto Exit0;
+    }
+
+    m_mergeFlags.clear();
     tmpVector.insert(tmpVector.begin(), m_nRowCount, FALSE);
     m_mergeFlags.insert(m_mergeFlags.begin(), m_nColumnCount, tmpVector);
 
-    return TRUE;
+    bRet = TRUE;
+
+Exit0:
+
+    return bRet;
 }
 
 
@@ -145,35 +200,50 @@ BOOL CGame2048Core::IsFull() const
 
 int CGame2048Core::GetAt( int x, int y ) const
 {
+    int nRet = INVALID_GAME_NUMBER;
+
     POINT point = {x, y};
-    return GetAt(point);
+    nRet = GetAt(point);
+
+    return nRet;
 }
 
 int CGame2048Core::GetAt( const POINT& point ) const
 {
+    int nRet = INVALID_GAME_NUMBER;
+
     if (!_IsPointValid(point))
     {
         _FC_LOG("invalid position to get");
-        return INVALID_GAME_NUMBER;
+        goto Exit0;
     }
 
-    int nNumber = m_numbers[point.x][point.y];
-    return nNumber;
+    nRet = m_numbers[point.x][point.y];
+
+Exit0:
+
+    return nRet;
 }
 
 BOOL CGame2048Core::_IsPointValid(const POINT& point) const
 {
+    BOOL bRet = FALSE;
+
     if (point.x < 0 || point.y < 0)
     {
-        return FALSE;
+        goto Exit0;
     }
 
     if (point.x >= m_nRowCount || point.y >= m_nColumnCount)
     {
-        return FALSE;
+        goto Exit0;
     }
 
-    return TRUE;
+    bRet = TRUE;
+
+Exit0:
+
+    return bRet;
 }
 
 
@@ -182,6 +252,12 @@ void CGame2048Core::_GetNextPoint( const POINT& point, POINT* pResultPoint, CGam
     ASSERT(pResultPoint != NULL);
 
     POINT nextPoint = point;
+
+    if (pResultPoint == NULL)
+    {
+        goto Exit0;
+    }
+
     switch(dirction)
     {
     case DIRECTION_DOWN:
@@ -206,45 +282,64 @@ void CGame2048Core::_GetNextPoint( const POINT& point, POINT* pResultPoint, CGam
     }
 
     *pResultPoint = nextPoint;
+
+Exit0:
+
+    return;
 }
 
 
 BOOL CGame2048Core::_CanPointMove( const POINT& point, CGame2048Core::DIRECTION dirction ) const
 {
+    BOOL bRet = FALSE;
     POINT nextPoint = {-1, -1};
-    _GetNextPoint(point, &nextPoint, dirction);
 
+    _GetNextPoint(point, &nextPoint, dirction);
     if (!_IsPointValid(nextPoint))
     {
-        return FALSE;
+        goto Exit0;
     }
 
     int nNextNumber = GetAt(nextPoint);
     int nNumber = GetAt(point);
     if (nNumber != nNextNumber && nNextNumber != 0)
     {
-        return FALSE;
+        goto Exit0;
     }
 
-    return TRUE;
+    bRet = TRUE;
+
+Exit0:
+
+    return bRet;
 }
 
 void CGame2048Core::_MovePoint(CGame2048Core::POINT* pMovingPoint, CGame2048Core::DIRECTION direction)
 {
     ASSERT(pMovingPoint != NULL && _IsPointValid(*pMovingPoint));
 
-    POINT& movingPoint = *pMovingPoint;
     POINT nextPoint = {-1, -1};
+
+    if (pMovingPoint == NULL || _IsPointValid(*pMovingPoint) == FALSE)
+    {
+        goto Exit0;
+    }
+
     do 
     {		
-        _MovePointToNext(&movingPoint, direction);
-        _GetNextPoint(movingPoint, &nextPoint, direction);
+        _MovePointToNext(pMovingPoint, direction);
+        _GetNextPoint(*pMovingPoint, &nextPoint, direction);
         if (!_CanPointMove(nextPoint, direction))
         {
             break;
         }
-        movingPoint = nextPoint;			
+        *pMovingPoint = nextPoint;
+
     } while (TRUE);
+
+Exit0:
+
+    return;
 }
 
 BOOL CGame2048Core::_MovePointToNext(CGame2048Core::POINT* pMovingPoint, CGame2048Core::DIRECTION direction)
@@ -253,21 +348,27 @@ BOOL CGame2048Core::_MovePointToNext(CGame2048Core::POINT* pMovingPoint, CGame20
 
     BOOL bIsMoved = FALSE;
     POINT nextPoint = {-1, -1};
-    POINT& movingPoint = *pMovingPoint;
-    _GetNextPoint(movingPoint, &nextPoint, direction);
 
+    if (pMovingPoint == NULL || _IsPointValid(*pMovingPoint) == FALSE)
+    {
+        goto Exit0;
+    }
+
+    _GetNextPoint(*pMovingPoint, &nextPoint, direction);
     if (!_IsPointValid(nextPoint))
     {
         return bIsMoved;
     }
 
-    int nMovingNumber = GetAt(movingPoint);
+    int nMovingNumber = GetAt(*pMovingPoint);
     if (_IsBlank(nextPoint))
     {
         _SetAt(nextPoint, nMovingNumber);
-        _SetAt(movingPoint, 0);
+        _SetAt(*pMovingPoint, 0);
         bIsMoved = TRUE;
     }
+
+Exit0:
 
     return bIsMoved;
 }
@@ -279,7 +380,7 @@ void CGame2048Core::_Slide( CGame2048Core::DIRECTION dirction )
     BOOL bNeedMove = _GetFirstMovePoint(&currentPoint, dirction);
     if (bNeedMove == FALSE)
     {
-        return;
+        goto Exit0;
     }
 
     while (bNeedMove)
@@ -308,6 +409,11 @@ void CGame2048Core::_Slide( CGame2048Core::DIRECTION dirction )
     }
 
     _ClearMergeFlags();
+
+Exit0:
+
+    return;
+
 }
 
 
@@ -349,17 +455,23 @@ BOOL CGame2048Core::IsWin() const
 
 BOOL CGame2048Core::IsFail() const
 {
+    BOOL bRet = FALSE;
+
     if (IsFull() == FALSE)
     {
-        return FALSE;
+        goto Exit0;
     }
 
     if (_HasAdjacentSame())
     {
-        return FALSE;
+        goto Exit0;
     }
 
-    return TRUE;
+    bRet = TRUE;
+
+Exit0:
+
+    return bRet;
 }
 
 int CGame2048Core::GetScore() const
@@ -370,13 +482,16 @@ int CGame2048Core::GetScore() const
 
 BOOL CGame2048Core::_IsBlank( const POINT& point ) const
 {
-    int nNumber = GetAt(point);
+    BOOL bRet = FALSE;
+    int nNumber = INVALID_GAME_NUMBER;
+    
+    nNumber = GetAt(point);
     if (nNumber == 0)
     {
-        return TRUE;
+        bRet = TRUE;
     }
 
-    return FALSE;
+    return bRet;
 }
 
 void CGame2048Core::_SetAt( const POINT& point, int nNumber )
@@ -395,8 +510,13 @@ BOOL CGame2048Core::_GetFirstMovePoint( POINT* pPoint, DIRECTION dirction ) cons
 {
     ASSERT(pPoint != NULL);
 
-    POINT firstPoint = {-1, -1};
     BOOL bRet = FALSE;
+    POINT firstPoint = {-1, -1};
+    
+    if (pPoint == NULL)
+    {
+        goto Exit0;
+    }
 
     switch(dirction)
     {
@@ -432,6 +552,8 @@ BOOL CGame2048Core::_GetFirstMovePoint( POINT* pPoint, DIRECTION dirction ) cons
         bRet = TRUE;
     }
 
+Exit0:
+
     return bRet;
 }
 
@@ -439,8 +561,15 @@ BOOL CGame2048Core::_GetNextMovePointOrder( POINT* pPoint ) const
 {
     ASSERT(pPoint != NULL);
 
-    POINT nextPoint = *pPoint;
+    BOOL bRet = FALSE;
+    POINT nextPoint = {0};
+        
+    if (pPoint == NULL)
+    {
+        goto Exit0;
+    }
 
+    nextPoint = *pPoint;
     nextPoint.y += 1;
     if (nextPoint.y > m_nColumnCount - 1)
     {
@@ -450,14 +579,26 @@ BOOL CGame2048Core::_GetNextMovePointOrder( POINT* pPoint ) const
 
     *pPoint = nextPoint;
 
-    return TRUE;
+    bRet = TRUE;
+
+Exit0:
+
+    return bRet;
 }
 
 BOOL CGame2048Core::_GetNextMovePointReverse( POINT* pPoint ) const
 {
     ASSERT(pPoint != NULL);
 
-    POINT nextPoint = *pPoint;
+    BOOL bRet = FALSE;
+    POINT nextPoint = {0};
+
+    if (pPoint == NULL)
+    {
+        goto Exit0;
+    }
+        
+    nextPoint = *pPoint;
     nextPoint.y -= 1;
     if (nextPoint.y < 0)
     {
@@ -466,15 +607,26 @@ BOOL CGame2048Core::_GetNextMovePointReverse( POINT* pPoint ) const
     }
     *pPoint = nextPoint;
 
-    return TRUE;
+    bRet = TRUE;
+
+Exit0:
+
+    return bRet;
 }
 
 BOOL CGame2048Core::_GetNextMovePoint( POINT* pPoint, DIRECTION dirction ) const
 {
     ASSERT(pPoint != NULL);
 
-    POINT nextPoint = *pPoint;
     BOOL bRet = FALSE;
+    POINT nextPoint = {0};
+
+    if (pPoint == NULL)
+    {
+        goto Exit0;
+    }
+
+    nextPoint = *pPoint;
 
     switch(dirction)
     {
@@ -498,6 +650,8 @@ BOOL CGame2048Core::_GetNextMovePoint( POINT* pPoint, DIRECTION dirction ) const
         *pPoint = nextPoint;
         bRet = TRUE;
     }
+
+Exit0:
 
     return bRet;
 }
@@ -536,41 +690,50 @@ GAME_MODE CGame2048Core::GetGameMode() const
 
 BOOL CGame2048Core::_HasAdjacentSame() const
 {
+    BOOL bRet = FALSE;
+
     for (int i = 0; i < m_nRowCount; ++i)
     {
         for (int j = 0; j < m_nColumnCount; ++j)
         {
             if (i > 0 && m_numbers[i - 1][j] == m_numbers[i][j])
             {
-                return TRUE;
+                bRet = TRUE;
+                goto Exit0;
             }
 
             if (j > 0 && m_numbers[i][j - 1] == m_numbers[i][j])
             {
-                return TRUE;
+                bRet = TRUE;
+                goto Exit0;
             }
         }
     }
 
-    return FALSE;
+Exit0:
+
+    return bRet;
 }
 
 int CGame2048Core::_GetGenerateCount( GAME_MODE gameMode /*= GAME_MODE_INVALID*/ ) const
 {
+    int nRet = 0;
+
     if (gameMode == GAME_MODE_INVALID)
     {
         gameMode = m_gameMode;
     }
-
-    int nRet = 0;
+    
     switch(gameMode)
     {
     case GAME_MODE_4X4:
         nRet = 1;
         break;
+
     case GAME_MODE_8x8:
         nRet = 2;
         break;
+
     default:
         _FC_LOG("Unknown game mode!");
         break;
@@ -581,29 +744,33 @@ int CGame2048Core::_GetGenerateCount( GAME_MODE gameMode /*= GAME_MODE_INVALID*/
 
 BOOL CGame2048Core::_CanPointMerge( const POINT& point, DIRECTION dirction ) const
 {
+    BOOL bRet = FALSE;
+    POINT nextPoint = {-1, -1};
+
     if (!_IsPointValid(point))
     {
-        return FALSE;
+        goto Exit0;
     }
 
-    POINT nextPoint = {-1, -1};
     _GetNextPoint(point, &nextPoint, dirction);
     if (!_IsPointValid(nextPoint))
     {
-        return FALSE;
+        goto Exit0;
     }
 
     if (_IsPointFromMerge(nextPoint))
     {
-        return FALSE;
+        goto Exit0;
     }
 
     if (GetAt(point) == GetAt(nextPoint))
     {
-        return TRUE;
+        bRet = TRUE;
     }
 
-    return FALSE;
+Exit0:
+
+    return bRet;
 }
 
 void CGame2048Core::_MergePoint( const POINT& point, DIRECTION dirction )
@@ -612,6 +779,7 @@ void CGame2048Core::_MergePoint( const POINT& point, DIRECTION dirction )
 
     POINT nextPoint = {-1, -1};
     _GetNextPoint(point, &nextPoint, dirction);
+
     ASSERT(_IsPointValid(nextPoint));
     ASSERT(GetAt(point) == GetAt(nextPoint));
 

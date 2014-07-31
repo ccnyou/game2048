@@ -15,7 +15,7 @@ public:
 
     BOOL	Init(CGame2048Core*	pGame);
     BOOL	Uninit();
-    BOOL	Run();
+    int     Run();
 
 private:
     BOOL	_InitConsole();

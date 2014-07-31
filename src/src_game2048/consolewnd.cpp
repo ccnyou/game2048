@@ -17,24 +17,29 @@ CConsoleWnd::~CConsoleWnd(void)
 
 BOOL CConsoleWnd::Init( CGame2048Core* pGame )
 {
-    if (pGame == NULL)
-    {
-        _FC_LOG("Invalid game");
-        return FALSE;
-    }
+    BOOL bRet = FALSE;
 
     m_pGame = pGame;
 
-    _InitConsole();
+    if (!_InitConsole())
+    {
+        goto Exit0;
+    }
+
     _InitAppearance();
     _Welcome();
     _DrawGame();
 
-    return TRUE;
+    bRet = TRUE;
+Exit0:
+
+    return bRet;
 }
 
 BOOL CConsoleWnd::Uninit()
 {
+    BOOL bRet = FALSE;
+
     if (m_fpInput)
     {
         fclose(m_fpInput);
@@ -45,12 +50,12 @@ BOOL CConsoleWnd::Uninit()
         fclose(m_fpInput);
     }
 
-    BOOL bRet = FreeConsole();
+    bRet = FreeConsole();
 
     return bRet;
 }
 
-BOOL CConsoleWnd::Run()
+int CConsoleWnd::Run()
 {
     do 
     {
@@ -80,22 +85,30 @@ BOOL CConsoleWnd::Run()
 
 BOOL CConsoleWnd::_JudgeGameResult() const
 {
-    ASSERT(m_pGame != NULL);
+    BOOL bRet = TRUE;
+
+    if (m_pGame == NULL)
+    {
+        bRet = FALSE;
+        goto Exit0;
+    }
 
     if (m_pGame->IsWin())
     {
         printf("You did it! \n");
         system("pause");
-        return FALSE;
+        bRet = FALSE;
     }
     else if (m_pGame->IsFail())
     {
         printf("╧Рак! \n");
         system("pause");
-        return FALSE;
+        bRet = FALSE;
     }
 
-    return TRUE;
+Exit0:
+
+    return bRet;
 }
 
 
@@ -106,7 +119,10 @@ void CConsoleWnd::_Welcome() const
 
 void CConsoleWnd::_HandleInput( int nInput ) const
 {
-    ASSERT(m_pGame != NULL);
+    if (m_pGame == NULL)
+    {
+        goto Exit0;
+    }
 
     switch(nInput)
     {
@@ -126,37 +142,41 @@ void CConsoleWnd::_HandleInput( int nInput ) const
         break;
     }
 
+Exit0:
+
+    return;
 }
 
 BOOL CConsoleWnd::_IsQuitCommand( int nInput ) const
 {
+    BOOL bRet = FALSE;
+
     if (nInput == 'Q')
     {
-        return TRUE;
+        bRet = TRUE;
     }
 
-    return FALSE;
+    return bRet;
 }
 
 void CConsoleWnd::_InitAppearance() const
 {
-    ASSERT(m_pGame != NULL);
-
     system("color 1A");
 }
 
 
 void CConsoleWnd::_DrawGame() const
 {
-    ASSERT(m_pGame != NULL);
-
-    for (int i = 0; i < m_pGame->GetRowCount(); i++)
+    if (m_pGame != NULL)
     {
-        for (int j = 0; j < m_pGame->GetColumnCount(); j++)
+        for (int i = 0; i < m_pGame->GetRowCount(); i++)
         {
-            printf("%5d", m_pGame->GetAt(i, j));
+            for (int j = 0; j < m_pGame->GetColumnCount(); j++)
+            {
+                printf("%5d", m_pGame->GetAt(i, j));
+            }
+            printf("\n");
         }
-        printf("\n");
     }
 }
 
@@ -165,18 +185,29 @@ void CConsoleWnd::_ClearScreen() const
     system("cls");
 }
 
-
 BOOL CConsoleWnd::_InitConsole()
 {
-    BOOL bRet = AllocConsole();
+    BOOL bRet = FALSE;
+        
+    bRet = ::AllocConsole();
     if (!bRet)
     {
         _FC_LOG("AllocConsole failed");
-        return bRet;
+        goto Exit0;
     }
 
     freopen_s(&m_fpOutput, "CONOUT$", "w+t", stdout);
     freopen_s(&m_fpInput, "CONIN$", "r+t", stdin);
+
+    if (m_fpInput == NULL || m_fpOutput == NULL)
+    {
+        bRet = FALSE;
+        goto Exit0;
+    }
+
+    bRet = TRUE;
+
+Exit0:
 
     return bRet;
 }
@@ -184,17 +215,18 @@ BOOL CConsoleWnd::_InitConsole()
 int CConsoleWnd::_Getch()
 {
     int nInput = EOF;
-    HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
+    HANDLE hStdin = ::GetStdHandle(STD_INPUT_HANDLE);
     DWORD dwErr = 0;
-    SetLastError(dwErr);
-
     INPUT_RECORD inputRecord = {0};
-    DWORD dwRead;
-    BOOL bRet = FALSE;
+    DWORD dwRead = 0;
+    BOOL bStatusCode = FALSE;
+
+    ::SetLastError(dwErr);
+
     do 
     {
-        bRet = ReadConsoleInput(hStdin, &inputRecord, 1L, &dwRead);
-        if (!bRet)
+        bStatusCode = ::ReadConsoleInput(hStdin, &inputRecord, 1L, &dwRead);
+        if (!bStatusCode)
         {
             _FC_LOG("ReadConsoleInput failed!");
             break;
@@ -207,7 +239,6 @@ int CConsoleWnd::_Getch()
         }
 
     } while (TRUE);
-
 
     return nInput;
 }
