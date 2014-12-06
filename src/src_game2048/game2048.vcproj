@@ -219,6 +219,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Random.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -266,6 +270,10 @@
 			</File>
 			<File
 				RelativePath=".\gamesettingdlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Random.h"
 				>
 			</File>
 			<File
@@ -371,30 +379,6 @@
 			Name="3rd"
 			>
 			<Filter
-				Name="ccWidgets"
-				>
-				<File
-					RelativePath="..\..\include\ccWidgets\auto_tchar.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\include\ccWidgets\ccWidgets.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\include\ccWidgets\Object.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\include\ccWidgets\Random.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\include\ccWidgets\Type.h"
-					>
-				</File>
-			</Filter>
-			<Filter
 				Name="fclog"
 				>
 				<File
@@ -405,10 +389,6 @@
 					RelativePath="..\..\include\fclog\fc_log.h"
 					>
 				</File>
-			</Filter>
-			<Filter
-				Name="boost"
-				>
 			</Filter>
 		</Filter>
 		<File

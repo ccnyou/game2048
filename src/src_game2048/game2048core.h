@@ -11,6 +11,7 @@
 #define Game2048_h__
 
 #include <vector>
+#include "Random.h"
 
 enum GAME_MODE
 {
@@ -74,6 +75,7 @@ private:
 
 private:
 
+    BOOL    _InitRandom();
     BOOL	_InitGameRect();
     BOOL	_InitNumbers();
     BOOL	_InitMergeFlags();
@@ -108,7 +110,7 @@ private:
     int				m_nScore;				// 记录游戏当前分数
     IntVector2		m_numbers;				// 记录每个格子里面的数字
     IntVector2		m_mergeFlags;			// 记录这个点是不是刚合并的
-    cc::Random		m_random;				// 随机数产生器 
+    Random		    m_random;				// 随机数产生器 
     int				m_nRowCount;
     int				m_nColumnCount;
 

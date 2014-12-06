@@ -61,7 +61,6 @@
 #include <Gdiplus.h>
 
 #include "fclog/fc_log.h"
-#include "ccWidgets/ccWidgets.h"
 #include "boost/smart_ptr/shared_ptr.hpp"
 #pragma comment(lib, "gdiplus.lib")
 

@@ -26,6 +26,11 @@ BOOL CGame2048Core::Init( GAME_MODE gameMode /*= GAME_MODE_4X4*/ )
 
     m_gameMode = gameMode;
 
+    if (!_InitRandom())
+    {
+        goto Exit0;
+    }
+
     if(!_InitGameRect())
     {
         goto Exit0;
@@ -48,6 +53,10 @@ Exit0:
     return bRet;
 }
 
+BOOL CGame2048Core::_InitRandom()
+{
+    return m_random.Init();
+}
 
 BOOL CGame2048Core::_InitGameRect()
 {
@@ -790,3 +799,5 @@ void CGame2048Core::_MergePoint( const POINT& point, DIRECTION dirction )
 
     _MarkPointMerge(nextPoint);
 }
+
+

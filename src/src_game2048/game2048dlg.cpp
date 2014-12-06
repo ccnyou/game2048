@@ -361,7 +361,6 @@ void CGame2048Dlg::_DrawScore( Gdiplus::Graphics* pGraphics )
     int nWndHeight = 0;
     int nGameHeight = 0;
 
-
     if (pGraphics == NULL)
     {
         goto Exit0;
