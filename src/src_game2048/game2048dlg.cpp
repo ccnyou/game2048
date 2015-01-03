@@ -82,7 +82,6 @@ void CGame2048Dlg::DoDataExchange(CDataExchange* pDX)
     CDialog::DoDataExchange(pDX);
 }
 
-
 BEGIN_MESSAGE_MAP(CGame2048Dlg, CDialog)
     ON_WM_SYSCOMMAND()
     ON_WM_PAINT()
@@ -432,7 +431,6 @@ void CGame2048Dlg::_DrawGameBackground( Gdiplus::Graphics* pGraphics )
         return;
     }
 
-    
     _GetGameRect(&gameRect);
 
     tmpRect = Gdiplus::Rect(gameRect.left + DEFAULT_WIN_PAD, gameRect.top + DEFAULT_WIN_PAD, gameRect.Width(), gameRect.Height());

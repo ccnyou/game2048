@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "game2048core.h"
 
+const int       GAME_GLOBAL_NUMBER = 2048;
+const float     PROBABILITY_OF_2 = 0.8f;
+
 
 CGame2048Core::CGame2048Core()
 {
@@ -101,7 +104,6 @@ BOOL CGame2048Core::_InitNumbers()
     bRet = TRUE;
 
 Exit0:
-
     return bRet;
 }
 
@@ -123,7 +125,6 @@ BOOL CGame2048Core::_InitMergeFlags()
     bRet = TRUE;
 
 Exit0:
-
     return bRet;
 }
 
@@ -136,38 +137,42 @@ BOOL CGame2048Core::Uninit()
 
 void CGame2048Core::Start()
 {
-    _GenerateNumber(INIT_NUMBER_COUNT);
+    //_GenerateNumber(INIT_NUMBER_COUNT);
 
-    // 	 	int number[4][4] = {
-    // 	 		{2,		4,		2,		2},
-    // 	 		{16,	32,		16,		8},
-    // 	 		{32,	64,		256,	64},
-    // 	 		{128,	2,		512,	128}
-    // 	 	};
-    // 	 	memcpy(&m_numbers, &number, sizeof(number));
+    m_numbers[0][0] = 2;
+    m_numbers[0][1] = 2;
+}
 
-    // 	m_numbers[0][0] = 2;
-    // 	m_numbers[0][1] = 2;
-    // 	m_numbers[0][2] = 0;
-    // 	m_numbers[0][3] = 2;
+BOOL CGame2048Core::_GetRandomPoint(CGame2048Core::POINT* pResult) const
+{
+    BOOL bRet = FALSE;
+    int x = 0, y = 0;
+    ASSERT(IsFull() == FALSE && pResult != NULL);
+
+    do 
+    {
+        x = m_random.GetInt(m_nRowCount);
+        y = m_random.GetInt(m_nColumnCount);
+    } while (GetAt(x, y) != 0);
+
+    pResult->x = x;
+    pResult->y = y;
+
+    return bRet;
 }
 
 void CGame2048Core::_GenerateNumber(int nCount /*= 1*/)
 {
+    POINT point = {0};
+    int nVal = 0;
     ASSERT(IsFull() == FALSE);
 
     for (int i = 0; i < nCount; i++)
     {
-        int x = 0, y = 0, nVal = 0;
-        do 
-        {
-            x = m_random.GetInt(m_nRowCount);
-            y = m_random.GetInt(m_nColumnCount);
-            nVal = _Get2Or4(0.8f);
-        } while (m_numbers[x][y] != 0);
-
-        _FC_LOG("生成新点位于(%d, %d) = %d", x, y, nVal);
-        m_numbers[x][y] = nVal;
+        _GetRandomPoint(&point);
+        nVal = _Get2Or4(PROBABILITY_OF_2);
+        _SetAt(point, nVal);
+        _FC_LOG("生成新点位于(%d, %d) = %d", point.x, point.y, nVal);
 
         if (IsFull())
         {		
@@ -302,6 +307,13 @@ BOOL CGame2048Core::_CanPointMove( const POINT& point, CGame2048Core::DIRECTION 
 {
     BOOL bRet = FALSE;
     POINT nextPoint = {-1, -1};
+    int nNumber = 0;
+    int nNextNumber = 0;
+
+    if (_IsBlank(point))
+    {
+        goto Exit0;
+    }
 
     _GetNextPoint(point, &nextPoint, dirction);
     if (!_IsPointValid(nextPoint))
@@ -309,9 +321,9 @@ BOOL CGame2048Core::_CanPointMove( const POINT& point, CGame2048Core::DIRECTION 
         goto Exit0;
     }
 
-    int nNextNumber = GetAt(nextPoint);
-    int nNumber = GetAt(point);
-    if (nNumber != nNextNumber && nNextNumber != 0)
+    nNextNumber = GetAt(nextPoint);
+    nNumber = GetAt(point);
+    if (nNumber != nNextNumber && !_IsBlank(nextPoint))
     {
         goto Exit0;
     }
@@ -385,8 +397,11 @@ Exit0:
 void CGame2048Core::_Slide( CGame2048Core::DIRECTION dirction )
 {
     BOOL bGenerate = FALSE;
+    POINT movingPoint = { 0 };
     POINT currentPoint = {-1, -1};
-    BOOL bNeedMove = _GetFirstMovePoint(&currentPoint, dirction);
+    BOOL bNeedMove = FALSE;
+    
+    bNeedMove = _GetFirstMovePoint(&currentPoint, dirction);
     if (bNeedMove == FALSE)
     {
         goto Exit0;
@@ -400,7 +415,7 @@ void CGame2048Core::_Slide( CGame2048Core::DIRECTION dirction )
             continue;
         }
 
-        POINT movingPoint = currentPoint;
+        movingPoint = currentPoint;
         _MovePoint(&movingPoint, dirction);
         if (_CanPointMerge(movingPoint, dirction))
         {
@@ -514,7 +529,6 @@ void CGame2048Core::_SetAt( const POINT& point, int nNumber )
     m_numbers[point.x][point.y] = nNumber;
 }
 
-
 BOOL CGame2048Core::_GetFirstMovePoint( POINT* pPoint, DIRECTION dirction ) const
 {
     ASSERT(pPoint != NULL);
@@ -544,7 +558,6 @@ BOOL CGame2048Core::_GetFirstMovePoint( POINT* pPoint, DIRECTION dirction ) cons
         firstPoint.y = m_nColumnCount - 1;
         break;
 
-
     case DIRECTION_RIGHT:
         firstPoint.x = m_nRowCount - 1;
         firstPoint.y = m_nColumnCount - 2;
@@ -562,7 +575,6 @@ BOOL CGame2048Core::_GetFirstMovePoint( POINT* pPoint, DIRECTION dirction ) cons
     }
 
 Exit0:
-
     return bRet;
 }
 

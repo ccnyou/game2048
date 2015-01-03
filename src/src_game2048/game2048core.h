@@ -20,9 +20,8 @@ enum GAME_MODE
     GAME_MODE_8x8
 };
 
-const int GAME_GLOBAL_NUMBER	= 2048;
-const int INIT_NUMBER_COUNT		= 2;
-const int INVALID_GAME_NUMBER	= -1;
+const int INIT_NUMBER_COUNT = 2;
+const int INVALID_GAME_NUMBER = -1;
 
 class CGame2048Core
 {
@@ -81,10 +80,10 @@ private:
     BOOL	_InitMergeFlags();
 
     void	_Slide(DIRECTION dirction);
-
     void	_GenerateNumber(int nCount = 1);
     int		_GetGenerateCount(GAME_MODE gameMode = GAME_MODE_INVALID) const;
     int		_Get2Or4(float fProbabilityOf2) const;
+    BOOL    _GetRandomPoint(POINT* pResult) const;
     void	_ClearMergeFlags();
     BOOL	_IsPointFromMerge(const POINT& point) const;
     void	_MarkPointMerge(const POINT& point);
@@ -95,7 +94,7 @@ private:
     BOOL	_IsBlank(const POINT& point) const;
     BOOL	_HasAdjacentSame() const;
     void	_GetNextPoint(const POINT& point, POINT* pResultPoint, CGame2048Core::DIRECTION dirction) const;
-
+    
     BOOL	_GetFirstMovePoint(POINT* pPoint, CGame2048Core::DIRECTION dirction) const;
     BOOL	_GetNextMovePoint(POINT* pPoint, CGame2048Core::DIRECTION dirction) const;
 

@@ -1,0 +1,168 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="资源文件\png">
+      <UniqueIdentifier>{0d2efc94-c3c1-4dd9-8755-12dfac0b95f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd">
+      <UniqueIdentifier>{9839f3ac-390c-40b1-91c3-80d11f2fabc4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd\ccWidgets">
+      <UniqueIdentifier>{33c3d2e9-fcc0-4d38-a4bc-1cdb93462ad3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd\fclog">
+      <UniqueIdentifier>{c9deada9-0fef-402f-9063-decd01060286}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd\boost">
+      <UniqueIdentifier>{02f03862-e069-46cb-96ae-c91c300f7d6c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="consolewnd.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="game2048app.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="game2048core.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="game2048dlg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="gamesettingdlg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\include\fclog\fc_log.cpp">
+      <Filter>3rd\fclog</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="consolewnd.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="debugconfig.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="game2048app.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="game2048core.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="game2048dlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="gamesettingdlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ccWidgets\auto_tchar.h">
+      <Filter>3rd\ccWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ccWidgets\ccWidgets.h">
+      <Filter>3rd\ccWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ccWidgets\Object.h">
+      <Filter>3rd\ccWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ccWidgets\Random.h">
+      <Filter>3rd\ccWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ccWidgets\Type.h">
+      <Filter>3rd\ccWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\fclog\fc_log.h">
+      <Filter>3rd\fclog</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\game2048.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\png\1024.png">
+      <Filter>资源文件\png</Filter>
+    </Image>
+    <Image Include="res\png\128.png">
+      <Filter>资源文件\png</Filter>
+    </Image>
+    <Image Include="res\png\16.png">
+      <Filter>资源文件\png</Filter>
+    </Image>
+    <Image Include="res\png\2.png">
+      <Filter>资源文件\png</Filter>
+    </Image>
+    <Image Include="res\png\2048.png">
+      <Filter>资源文件\png</Filter>
+    </Image>
+    <Image Include="res\png\256.png">
+      <Filter>资源文件\png</Filter>
+    </Image>
+    <Image Include="res\png\32.png">
+      <Filter>资源文件\png</Filter>
+    </Image>
+    <Image Include="res\png\4.png">
+      <Filter>资源文件\png</Filter>
+    </Image>
+    <Image Include="res\png\512.png">
+      <Filter>资源文件\png</Filter>
+    </Image>
+    <Image Include="res\png\64.png">
+      <Filter>资源文件\png</Filter>
+    </Image>
+    <Image Include="res\png\8.png">
+      <Filter>资源文件\png</Filter>
+    </Image>
+    <Image Include="res\png\bg.png">
+      <Filter>资源文件\png</Filter>
+    </Image>
+    <Image Include="res\png\empty.png">
+      <Filter>资源文件\png</Filter>
+    </Image>
+    <Image Include="res\png\sysbtn_close.png">
+      <Filter>资源文件\png</Filter>
+    </Image>
+    <Image Include="res\png\sysbtn_max.png">
+      <Filter>资源文件\png</Filter>
+    </Image>
+    <Image Include="res\png\sysbtn_menu.png">
+      <Filter>资源文件\png</Filter>
+    </Image>
+    <Image Include="res\png\sysbtn_min.png">
+      <Filter>资源文件\png</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="game2048.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\game2048.rc2">
+      <Filter>资源文件</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+</Project>
