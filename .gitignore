@@ -49,3 +49,5 @@ Icon
 *.user
 *.log
 *.suo
+*.tlog
+*.opensdf
