@@ -51,3 +51,4 @@ Icon
 *.suo
 *.tlog
 *.opensdf
+*.ipch
