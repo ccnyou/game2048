@@ -51,6 +51,9 @@
     <ClCompile Include="..\..\include\fclog\fc_log.cpp">
       <Filter>3rd\fclog</Filter>
     </ClCompile>
+    <ClCompile Include="random.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="consolewnd.h">
@@ -94,6 +97,9 @@
     </ClInclude>
     <ClInclude Include="..\..\include\fclog\fc_log.h">
       <Filter>3rd\fclog</Filter>
+    </ClInclude>
+    <ClInclude Include="random.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
