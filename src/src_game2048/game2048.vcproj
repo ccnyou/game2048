@@ -68,7 +68,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ccWidgets05_ud.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\lib\win32d"
 				GenerateManifest="true"
@@ -155,7 +154,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ccWidgets05_u.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\lib\win32"
 				GenerateDebugInformation="true"
